@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="11"/>
+    <BuildModes Active="Default"/>
+    <Units Count="12">
+      <Unit0>
+        <Filename Value="DAOSQLite.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="49"/>
+        <CursorPos X="29" Y="74"/>
+        <UsageCount Value="160"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="..\..\..\Quick.DAO.pas"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="26"/>
+        <CursorPos X="31" Y="194"/>
+        <UsageCount Value="15"/>
+        <Loaded Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="D:\Lazarus\fpcsrc\packages\rtl-objpas\src\inc\rtti.pp"/>
+        <UnitName Value="Rtti"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="249"/>
+        <CursorPos X="14" Y="269"/>
+        <UsageCount Value="2"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="D:\Lazarus\fpcsrc\packages\rtl-generics\src\generics.collections.pas"/>
+        <UnitName Value="Generics.Collections"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="116"/>
+        <CursorPos X="3" Y="137"/>
+        <UsageCount Value="13"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="D:\Lazarus\fpcsrc\rtl\objpas\typinfo.pp"/>
+        <UnitName Value="TypInfo"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="35"/>
+        <CursorPos X="8" Y="51"/>
+        <UsageCount Value="14"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\..\..\Quick.DAO.Engine.SQLite3.pas"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="22"/>
+        <CursorPos X="24" Y="250"/>
+        <UsageCount Value="80"/>
+        <Loaded Value="True"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="..\..\..\Quick.DAO.Database.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="190"/>
+        <CursorPos X="56" Y="191"/>
+        <UsageCount Value="14"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="357"/>
+        <CursorPos X="40" Y="337"/>
+        <UsageCount Value="79"/>
+        <Loaded Value="True"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="..\..\..\..\..\SQLite3\Source\SQLite3Wrap.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="152"/>
+        <CursorPos Y="173"/>
+        <UsageCount Value="11"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="D:\Lazarus\fpcsrc\rtl\inc\rttih.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="3"/>
+        <CursorPos X="3" Y="36"/>
+        <UsageCount Value="2"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="..\..\..\Quick.DAO.QueryGenerator.SQLite.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="111"/>
+        <CursorPos X="72" Y="112"/>
+        <UsageCount Value="1"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="..\..\..\..\QuickLib\Quick.Rtti.fpc.Compatibility.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="21"/>
+        <CursorPos X="48" Y="57"/>
+        <UsageCount Value="0"/>
+      </Unit11>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="85" Column="48" TopLine="51"/>
+      </Position1>
+      <Position2>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="96" Column="42" TopLine="63"/>
+      </Position2>
+      <Position3>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="98" Column="49" TopLine="65"/>
+      </Position3>
+      <Position4>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="102" Column="47" TopLine="69"/>
+      </Position4>
+      <Position5>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="104" Column="43" TopLine="71"/>
+      </Position5>
+      <Position6>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="106" Column="47" TopLine="73"/>
+      </Position6>
+      <Position7>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="108" Column="49" TopLine="75"/>
+      </Position7>
+      <Position8>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="109" Column="59" TopLine="76"/>
+      </Position8>
+      <Position9>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="135" Column="24" TopLine="101"/>
+      </Position9>
+      <Position10>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="185" Column="87" TopLine="151"/>
+      </Position10>
+      <Position11>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="263" Column="70" TopLine="229"/>
+      </Position11>
+      <Position12>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="271" Column="24" TopLine="237"/>
+      </Position12>
+      <Position13>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="273" Column="17" TopLine="239"/>
+      </Position13>
+      <Position14>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="308" Column="104" TopLine="274"/>
+      </Position14>
+      <Position15>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="310" Column="21" TopLine="276"/>
+      </Position15>
+      <Position16>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="314" Column="10" TopLine="277"/>
+      </Position16>
+      <Position17>
+        <Filename Value="..\..\..\Quick.DAO.Engine.SQLite3.pas"/>
+        <Caret Line="238" TopLine="204"/>
+      </Position17>
+      <Position18>
+        <Filename Value="DAOSQLite.pas"/>
+        <Caret Line="82" Column="40" TopLine="61"/>
+      </Position18>
+      <Position19>
+        <Filename Value="DAOSQLite.pas"/>
+        <Caret Line="78" Column="64" TopLine="55"/>
+      </Position19>
+      <Position20>
+        <Filename Value="DAOSQLite.pas"/>
+        <Caret Line="82" Column="51" TopLine="61"/>
+      </Position20>
+      <Position21>
+        <Filename Value="..\..\..\Quick.DAO.pas"/>
+        <Caret Line="106" Column="26" TopLine="73"/>
+      </Position21>
+      <Position22>
+        <Filename Value="DAOSQLite.pas"/>
+        <Caret Line="82" Column="62" TopLine="61"/>
+      </Position22>
+      <Position23>
+        <Filename Value="..\..\..\Quick.DAO.pas"/>
+        <Caret Line="105" Column="64" TopLine="94"/>
+      </Position23>
+      <Position24>
+        <Filename Value="..\..\..\Quick.DAO.pas"/>
+        <Caret Line="194" Column="31" TopLine="160"/>
+      </Position24>
+      <Position25>
+        <Filename Value="..\..\..\Quick.DAO.pas"/>
+        <Caret Line="658" Column="29" TopLine="624"/>
+      </Position25>
+      <Position26>
+        <Filename Value="..\..\..\Quick.DAO.pas"/>
+        <Caret Line="700" Column="29" TopLine="666"/>
+      </Position26>
+      <Position27>
+        <Filename Value="..\..\..\Quick.DAO.Engine.SQLite3.pas"/>
+        <Caret Line="208" Column="55" TopLine="204"/>
+      </Position27>
+      <Position28>
+        <Filename Value="..\..\..\Quick.DAO.Engine.SQLite3.pas"/>
+        <Caret Line="250" Column="24" TopLine="22"/>
+      </Position28>
+      <Position29>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="10" Column="59"/>
+      </Position29>
+      <Position30>
+        <Filename Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Caret Line="78" Column="31" TopLine="44"/>
+      </Position30>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0" ActiveMode=""/>
+    </RunParams>
+  </ProjectSession>
+  <Debugging>
+    <BreakPoints Count="5">
+      <Item1>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Line Value="220"/>
+      </Item1>
+      <Item2>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Line Value="236"/>
+      </Item2>
+      <Item3>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\MSSQL\DAOMSSQL.lpr"/>
+        <Line Value="112"/>
+      </Item3>
+      <Item4>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="D:\Lazarus\fpcsrc\packages\rtl-objpas\src\inc\rtti.pp"/>
+        <Line Value="2435"/>
+      </Item4>
+      <Item5>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\..\..\Quick.DAO.Query.pas"/>
+        <Line Value="407"/>
+      </Item5>
+    </BreakPoints>
+    <Watches Count="2">
+      <Item1>
+        <Expression Value="propertyname"/>
+      </Item1>
+      <Item2>
+        <Expression Value="aFieldName"/>
+      </Item2>
+    </Watches>
+  </Debugging>
+</CONFIG>
