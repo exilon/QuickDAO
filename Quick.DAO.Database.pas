@@ -5,9 +5,9 @@
   Unit        : Quick.DAO.Database
   Description : DAO Database
   Author      : Kike Pérez
-  Version     : 1.0
+  Version     : 1.1
   Created     : 22/06/2018
-  Modified    : 27/08/2019
+  Modified    : 27/09/2019
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
