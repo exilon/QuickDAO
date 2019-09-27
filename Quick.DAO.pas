@@ -5,9 +5,9 @@
   Unit        : Quick.DAO
   Description : DAO Easy access
   Author      : Kike Pérez
-  Version     : 1.0
+  Version     : 1.1
   Created     : 22/06/2018
-  Modified    : 11/07/2019
+  Modified    : 27/09/2019
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -165,10 +165,13 @@ type
   TDAOModels = class
   private
     fList : TObjectList<TDAOModel>;
+    fPluralizeTableNames : Boolean;
+    function GetTableNameFromClass(aTable : TDAORecordClass) : string;
   public
     constructor Create;
     destructor Destroy; override;
     property List : TObjectList<TDAOModel> read fList write fList;
+    property PluralizeTableNames : Boolean read fPluralizeTableNames write fPluralizeTableNames;
     procedure Add(aTable: TDAORecordClass; const aPrimaryKey: string; const aTableName : string = '');
     function GetPrimaryKey(aTable : TDAORecordClass) : string;
     function Get(aTable : TDAORecordClass) : TDAOModel; overload;
@@ -386,9 +389,9 @@ begin
   daomodel := TDAOModel.Create;
   daomodel.Table := aTable;
   {$IFNDEF FPC}
-  if aTableName = '' then daomodel.TableName := Copy(aTable.ClassName,2,aTable.ClassName.Length)
+  if aTableName = '' then daomodel.TableName := GetTableNameFromClass(aTable)
   {$ELSE}
-  if aTableName = '' then daomodel.TableName := Copy(aTable.ClassName,2,Length(aTable.ClassName))
+  if aTableName = '' then daomodel.TableName := GetTableNameFromClass(aTable)
   {$ENDIF}
     else daomodel.TableName := aTableName;
   daomodel.PrimaryKey := aPrimaryKey;
@@ -398,6 +401,7 @@ end;
 constructor TDAOModels.Create;
 begin
   fList := TObjectList<TDAOModel>.Create(True);
+  fPluralizeTableNames  := False;
 end;
 
 destructor TDAOModels.Destroy;
@@ -438,6 +442,11 @@ begin
   end;
 end;
 
+function TDAOModels.GetTableNameFromClass(aTable: TDAORecordClass): string;
+begin
+  Result := Copy(aTable.ClassName,2,aTable.ClassName.Length);
+  if fPluralizeTableNames then Result := Result + 's';
+end;
 
 {$IFNDEF FPC}
 { TFieldVARCHAR }

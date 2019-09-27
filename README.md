@@ -24,6 +24,7 @@ Data Access Object library for delphi/Firemonkey(Windows, Linux, Android, OSX & 
 
 **Updates:**
 
+* NEW: Optional Pluralize Tablenames convention.
 * NEW: Freepascal alpha version (partially supported).
 * NEW: First Delphi/Firemonkey beta version.
 
@@ -143,6 +144,7 @@ DAODatabase.Connection.Database := '.\test.db3';
 
 Models are all DAORecords defined (corresponding to database tables). You need to indicate wich models use your database and primary key.
 DAORecord class name can be mapped to a different table name.
+PluralizingTableNameConvention option allows pluralize your tables.
 ```delphi
 //Add model TUser with IdUser as primary key field
 DAODatabase.Models.Add(TUser,'IdUser');
