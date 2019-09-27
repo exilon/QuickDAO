@@ -86,6 +86,7 @@ begin
     DAODatabase := TDAODataBaseFireDAC.Create;
     DAODatabase.Connection.Provider := TDBProvider.daoSQLite;
     DAODatabase.Connection.Database := '.\test.db3';
+    DAODatabase.Models.PluralizeTableNames := True;
     DAODatabase.Models.Add(TUser,'IdUser');
     DAODatabase.Indexes.Add(TUser,['Name'],orAscending);
     if DAODatabase.Connect then cout('Connected to database',etSuccess)
