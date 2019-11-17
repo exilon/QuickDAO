@@ -5,9 +5,9 @@
   Unit        : Quick.DAO.Engine.ADO
   Description : DAODatabase ADO Provider
   Author      : Kike Pérez
-  Version     : 1.0
+  Version     : 1.1
   Created     : 22/06/2018
-  Modified    : 27/08/2019
+  Modified    : 03/11/2019
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -105,6 +105,7 @@ implementation
 constructor TDAODataBaseADO.Create;
 begin
   inherited;
+  CoInitialize(nil);
   fADOConnection := TADOConnection.Create(nil);
   fInternalQuery := TADOQuery.Create(nil);
 end;
@@ -125,14 +126,18 @@ function TDAODataBaseADO.CreateConnectionString: string;
 var
   dbconn : string;
 begin
-  if Connection.Server = '' then dbconn := 'Data Source=' + Connection.Database
-    else dbconn := Format('Database=%s;Data Source=%s',[Connection.Database,Connection.Server]);
+  if Connection.IsCustomConnectionString then Result := Format('Provider=%s;%s',[GetDBProviderName(Connection.Provider),Connection.GetCustomConnectionString])
+  else
+  begin
+    if Connection.Server = '' then dbconn := 'Data Source=' + Connection.Database
+      else dbconn := Format('Database=%s;Data Source=%s',[Connection.Database,Connection.Server]);
 
-  Result := Format('Provider=%s;Persist Security Info=False;User ID=%s;Password=%s;%s',[
+    Result := Format('Provider=%s;Persist Security Info=False;User ID=%s;Password=%s;%s',[
                               GetDBProviderName(Connection.Provider),
                               Connection.UserName,
                               Connection.Password,
                               dbconn]);
+  end;
 end;
 
 function TDAODataBaseADO.CreateQuery(aModel : TDAOModel) : IDAOQuery<TDAORecord>;
@@ -184,6 +189,7 @@ begin
   if Assigned(fInternalQuery) then fInternalQuery.Free;
   if fADOConnection.Connected then fADOConnection.Connected := False;
   fADOConnection.Free;
+  CoUninitialize;
   inherited;
 end;
 

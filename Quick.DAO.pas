@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.1
   Created     : 22/06/2018
-  Modified    : 27/09/2019
+  Modified    : 07/11/2019
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -189,7 +189,6 @@ type
 
   IDAOQuery<T> = interface
   ['{6AA202B4-CBBC-48AA-9D5A-855748D02DCC}']
-    //procedure SetConnectionSettings(aConnectionSettings :TDAOConnectionSettings);
     function Eof : Boolean;
     function MoveNext : Boolean;
     function GetCurrent : T;
@@ -276,6 +275,7 @@ type
     fPrimaryKey : TDBField;
   public
     constructor Create;
+    [TNotSerializableProperty]
     property PrimaryKey : TDBField read fPrimaryKey write fPrimaryKey;
   end;
 

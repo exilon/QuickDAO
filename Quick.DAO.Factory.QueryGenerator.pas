@@ -34,6 +34,7 @@ unit Quick.DAO.Factory.QueryGenerator;
 interface
 
 uses
+  System.SysUtils,
   Quick.DAO,
   Quick.DAO.QueryGenerator.MSSQL,
   Quick.DAO.QueryGenerator.MSAccess,
@@ -46,6 +47,8 @@ type
   public
     class function Create(aDBProvider : TDBProvider) : IDAOQueryGenerator;
   end;
+
+  EDAOQueryGeneratorError = class(Exception);
 
 implementation
 
@@ -60,6 +63,7 @@ begin
     TDBProvider.daoMySQL : Result := TMySQLQueryGenerator.Create;
     TDBProvider.daoSQLite : Result := TSQLiteQueryGenerator.Create;
     //TDAODBType.daoFirebase : Result := TFireBaseQueryGenerator.Create;
+    else raise EDAOQueryGeneratorError.Create('No valid QueryGenerator provider specified!');
   end;
 end;
 
