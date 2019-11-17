@@ -5,9 +5,9 @@
   Unit        : Quick.DAO.Engine.FireDAC
   Description : DAODatabase FireDAC Provider
   Author      : Kike Pérez
-  Version     : 1.0
+  Version     : 1.1
   Created     : 31/08/2018
-  Modified    : 25/08/2019
+  Modified    : 04/11/2019
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -141,12 +141,16 @@ end;
 
 function TDAODataBaseFireDAC.CreateConnectionString: string;
 begin
-  Result := Format('DriverID=%s;User_Name=%s;Password=%s;Database=%s;Server=%s',[
+  if Connection.IsCustomConnectionString then Result := Format('DriverID=%s;%s',[GetDriverID(Connection.Provider),Connection.GetCustomConnectionString])
+  else
+  begin
+    Result := Format('DriverID=%s;User_Name=%s;Password=%s;Database=%s;Server=%s',[
                               GetDriverID(Connection.Provider),
                               Connection.UserName,
                               Connection.Password,
                               Connection.Database,
                               Connection.Server]);
+  end;
 end;
 
 function TDAODataBaseFireDAC.CreateQuery(aModel: TDAOModel): IDAOQuery<TDAORecord>;
