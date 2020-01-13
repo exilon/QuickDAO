@@ -630,6 +630,7 @@ end;
 function TDAOQuery<T>.FormatParams(const aWhereClause: string; aWhereParams: array of const): string;
 var
   i : Integer;
+  value : string;
 begin
   Result := aWhereClause;
   if aWhereClause = '' then
@@ -640,19 +641,20 @@ begin
   for i := 0 to aWhereClause.CountChar('?') - 1 do
   begin
     case aWhereParams[i].VType of
-      vtInteger : Result := StringReplace(Result,'?',IntToStr(aWhereParams[i].VInteger),[]);
-      vtInt64 : Result := StringReplace(Result,'?',IntToStr(aWhereParams[i].VInt64^),[]);
-      vtExtended : Result := StringReplace(Result,'?',FloatToStr(aWhereParams[i].VExtended^),[]);
-      vtBoolean : Result := StringReplace(Result,'?',BoolToStr(aWhereParams[i].VBoolean),[]);
-      vtWideString : Result := DbQuotedStr(StringReplace(Result,'?',string(aWhereParams[i].VWideString^),[]));
+      vtInteger : value := IntToStr(aWhereParams[i].VInteger);
+      vtInt64 : value := IntToStr(aWhereParams[i].VInt64^);
+      vtExtended : value := FloatToStr(aWhereParams[i].VExtended^);
+      vtBoolean : value := BoolToStr(aWhereParams[i].VBoolean);
+      vtWideString : value := DbQuotedStr(string(aWhereParams[i].VWideString^));
       {$IFNDEF NEXTGEN}
-      vtAnsiString : Result := DbQuotedStr(StringReplace(Result,'?',AnsiString(aWhereParams[i].VAnsiString),[]));
-      vtString : Result := DbQuotedStr(StringReplace(Result,'?',aWhereParams[i].VString^,[]));
+      vtAnsiString : value := DbQuotedStr(AnsiString(aWhereParams[i].VAnsiString));
+      vtString : value := DbQuotedStr(aWhereParams[i].VString^);
       {$ENDIF}
-      vtChar : Result := DbQuotedStr(StringReplace(Result,'?',aWhereParams[i].VChar,[]));
-      vtPChar : Result := StringReplace(Result,'?',string(aWhereParams[i].VPChar),[]).QuotedString;
-    else Result := DbQuotedStr(StringReplace(Result,'?', DbQuotedStr(string(aWhereParams[i].VUnicodeString)),[]));
+      vtChar : value := DbQuotedStr(aWhereParams[i].VChar);
+      vtPChar : value := DbQuotedStr(string(aWhereParams[i].VPChar));
+    else value := DbQuotedStr(string(aWhereParams[i].VUnicodeString));
     end;
+    Result := StringReplace(Result,'?',value,[]);
   end;
 end;
 

@@ -129,6 +129,7 @@ begin
     //User := TUser.Create(DAODatabase,'IdUser > ?',[0]);
     //User := TUser.Create(DAODatabase,'Age > ? AND Age < ?',[30,35]);
     iresult := DAODatabase.From<TUser>.Where('Age > ? AND Age < ?',[30,35]).OrderBy('Name').SelectTop(10);
+    //iresult := DAODatabase.From<TUser>.Where('Name = ?',['Anna']).SelectTop(10);
     for User in iresult do
     begin
       cout('IdUser: %d Name: %s %s Age: %d Genre: %d LastInfo: %s',[User.IdUser,User.Name,User.Surname,User.Age,Ord(User.Genre),DateTimetoStr(User.LastInfo)],etSuccess);

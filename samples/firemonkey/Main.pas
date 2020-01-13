@@ -104,7 +104,11 @@ begin
   crono := TChronometer.Create(False);
   DAODatabase := TDAODataBaseFireDAC.Create;
     DAODatabase.Connection.Provider := TDBProvider.daoSQLite;
+    {$IFNDEF NEXTGEN}
     DAODatabase.Connection.Database := '.\test.db3';
+    {$ELSE}
+    DAODatabase.Connection.Database := TPath.GetDocumentsPath + PathDelim + 'test.db3';
+    {$ENDIF}
     DAODatabase.Models.Add(TUser,'IdUser');
     DAODatabase.Indexes.Add(TUser,['Name'],orAscending);
     if DAODatabase.Connect then Memo1.Lines.Add('Connected to database')
@@ -142,8 +146,6 @@ begin
 
     //get users
     Memo1.Lines.Add('Where query...');
-    //User := TUser.Create(DAODatabase,'IdUser > ?',[0]);
-    //User := TUser.Create(DAODatabase,'Age > ? AND Age < ?',[30,35]);
     iresult := DAODatabase.From<TUser>.Where('Age > ? AND Age < ?',[30,35]).OrderBy('Name').SelectTop(10);
     for User in iresult do
     begin

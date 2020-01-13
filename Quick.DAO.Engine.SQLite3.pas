@@ -1,13 +1,13 @@
 { ***************************************************************************
 
-  Copyright (c) 2016-2019 Kike Pérez
+  Copyright (c) 2016-2020 Kike Pérez
 
   Unit        : Quick.DAO.Engine.SQLite3
   Description : DAODatabase SQLite3 Provider
   Author      : Kike Pérez
   Version     : 1.0
   Created     : 06/07/2019
-  Modified    : 27/08/2019
+  Modified    : 12/01/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
