@@ -1,13 +1,13 @@
 { ***************************************************************************
 
-  Copyright (c) 2016-2018 Kike Pérez
+  Copyright (c) 2016-2020 Kike Pérez
 
   Unit        : Quick.DAO.Engine.FireDAC
   Description : DAODatabase FireDAC Provider
   Author      : Kike Pérez
   Version     : 1.1
   Created     : 31/08/2018
-  Modified    : 04/11/2019
+  Modified    : 12/01/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -309,6 +309,7 @@ end;
 
 function TDAOQueryFireDAC<T>.GetCurrent: T;
 begin
+  if fQuery.Eof then Exit(nil);
   Result := fModel.Table.Create as T;
   Self.FillRecordFromDB(Result);
 end;

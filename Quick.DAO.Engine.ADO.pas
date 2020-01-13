@@ -1,13 +1,13 @@
 { ***************************************************************************
 
-  Copyright (c) 2016-2019 Kike Pérez
+  Copyright (c) 2016-2020 Kike Pérez
 
   Unit        : Quick.DAO.Engine.ADO
   Description : DAODatabase ADO Provider
   Author      : Kike Pérez
   Version     : 1.1
   Created     : 22/06/2018
-  Modified    : 03/11/2019
+  Modified    : 12/01/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -326,6 +326,7 @@ end;
 
 function TDAOQueryADO<T>.GetCurrent: T;
 begin
+  if fQuery.Eof then Exit(nil);
   Result := fModel.Table.Create as T;
   Self.FillRecordFromDB(Result);
 end;
