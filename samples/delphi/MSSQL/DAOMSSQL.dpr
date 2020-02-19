@@ -143,7 +143,8 @@ begin
 
     //modify user
     cout('Modify a existing User...',etInfo);
-    User := DAODatabase.From<TUser>.Where('IdUser = ?',[1]).SelectFirst;
+    //User := DAODatabase.From<TUser>.Where('IdUser = ?',[1]).SelectFirst;
+    user := DAODatabase.From<TUser>.Where('Name = ?',['Alan']).SelectFirst;
     try
       if User <> nil then
       begin
