@@ -1,13 +1,13 @@
 { ***************************************************************************
 
-  Copyright (c) 2016-2019 Kike Pérez
+  Copyright (c) 2016-2020 Kike Pérez
 
   Unit        : Quick.DAO.Query
   Description : DAODatabase Query
   Author      : Kike Pérez
-  Version     : 1.0
+  Version     : 1.1
   Created     : 31/08/2018
-  Modified    : 27/08/2019
+  Modified    : 19/02/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -40,6 +40,7 @@ uses
   System.SysUtils,
   System.TypInfo,
   Json,
+  System.Variants,
   System.Generics.Collections,
   System.Generics.Defaults,
   {$ELSE}
@@ -579,16 +580,31 @@ var
 begin
   Result := False;
   try
-    sqlfields := fModel.GetFieldNames(aDAORecord,False);
-    try
-      sqlvalues := GetFieldValues(aDAORecord,False);
-      try
-        Result := ExecuteQuery(fQueryGenerator.AddOrUpdate(fModel.TableName,sqlfields.CommaText,CommaText(sqlvalues)));
-      finally
-        sqlvalues.Free;
+    if fQueryGenerator.Name = 'MSSQL' then
+    begin
+      if (aDAORecord.PrimaryKey.FieldName = '') or (VarIsEmpty(aDAORecord.PrimaryKey.Value))
+        or (Where(Format('%s = ?',[aDAORecord.PrimaryKey.FieldName]),[aDAORecord.PrimaryKey.Value]).Count = 0) then
+      begin
+        Add(aDAORecord);
+      end
+      else
+      begin
+        Update(aDAORecord);
       end;
-    finally
-      sqlfields.Free;
+    end
+    else
+    begin
+      sqlfields := fModel.GetFieldNames(aDAORecord,False);
+      try
+        sqlvalues := GetFieldValues(aDAORecord,False);
+        try
+          Result := ExecuteQuery(fQueryGenerator.AddOrUpdate(fModel.TableName,sqlfields.CommaText,CommaText(sqlvalues)));
+        finally
+          sqlvalues.Free;
+        end;
+      finally
+        sqlfields.Free;
+      end;
     end;
   except
     on E : Exception do raise EDAOCreationError.CreateFmt('AddOrUpdate error: %s',[e.message]);
@@ -631,6 +647,7 @@ function TDAOQuery<T>.FormatParams(const aWhereClause: string; aWhereParams: arr
 var
   i : Integer;
   value : string;
+  vari : variant;
 begin
   Result := aWhereClause;
   if aWhereClause = '' then
@@ -645,14 +662,24 @@ begin
       vtInt64 : value := IntToStr(aWhereParams[i].VInt64^);
       vtExtended : value := FloatToStr(aWhereParams[i].VExtended^);
       vtBoolean : value := BoolToStr(aWhereParams[i].VBoolean);
-      vtWideString : value := DbQuotedStr(string(aWhereParams[i].VWideString^));
+      vtWideString : value := fQueryGenerator.QuotedStr(string(aWhereParams[i].VWideString^));
       {$IFNDEF NEXTGEN}
-      vtAnsiString : value := DbQuotedStr(AnsiString(aWhereParams[i].VAnsiString));
-      vtString : value := DbQuotedStr(aWhereParams[i].VString^);
+      vtAnsiString : value := fQueryGenerator.QuotedStr(AnsiString(aWhereParams[i].VAnsiString));
+      vtString : value := fQueryGenerator.QuotedStr(aWhereParams[i].VString^);
       {$ENDIF}
-      vtChar : value := DbQuotedStr(aWhereParams[i].VChar);
-      vtPChar : value := DbQuotedStr(string(aWhereParams[i].VPChar));
-    else value := DbQuotedStr(string(aWhereParams[i].VUnicodeString));
+      vtChar : value := fQueryGenerator.QuotedStr(aWhereParams[i].VChar);
+      vtPChar : value := fQueryGenerator.QuotedStr(string(aWhereParams[i].VPChar));
+      vtVariant :
+      begin
+        vari := aWhereParams[i].VVariant^;
+        case VarType(vari) of
+          varInteger,varInt64 : value := IntToStr(vari);
+          varDouble : value := FloatToStr(vari);
+          varDate : value := DateTimeToSQL(vari);
+          else value := string(vari);
+        end;
+      end
+    else value := fQueryGenerator.QuotedStr(string(aWhereParams[i].VUnicodeString));
     end;
     Result := StringReplace(Result,'?',value,[]);
   end;

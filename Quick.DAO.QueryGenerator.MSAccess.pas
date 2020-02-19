@@ -1,13 +1,13 @@
 { ***************************************************************************
 
-  Copyright (c) 2016-2019 Kike Pérez
+  Copyright (c) 2016-2020 Kike Pérez
 
   Unit        : Quick.DAO.QueryGenerator.MSAccess
   Description : DAO MSAccess Query Generator
   Author      : Kike Pérez
   Version     : 1.0
   Created     : 22/06/2018
-  Modified    : 25/08/2019
+  Modified    : 19/02/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -43,6 +43,7 @@ type
 
   TMSAccessQueryGenerator = class(TDAOQueryGenerator,IDAOQueryGenerator)
   public
+    function Name : string;
     function CreateTable(const aTable : TDAOModel) : string;
     function ExistsTable(aModel : TDAOModel) : string;
     function ExistsColumn(aModel : TDAOModel; const aFieldName : string) : string;
@@ -188,6 +189,11 @@ begin
   finally
     querytext.Free;
   end;
+end;
+
+function TMSAccessQueryGenerator.Name: string;
+begin
+  Result := 'MSACCESS';
 end;
 
 function TMSAccessQueryGenerator.SetPrimaryKey(aModel: TDAOModel) : string;

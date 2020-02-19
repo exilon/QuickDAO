@@ -1,13 +1,13 @@
 { ***************************************************************************
 
-  Copyright (c) 2016-2019 Kike Pérez
+  Copyright (c) 2016-2020 Kike Pérez
 
   Unit        : Quick.DAO.QueryGenerator.MySQL
   Description : DAO MySQL Query Generator
   Author      : Kike Pérez
   Version     : 1.0
   Created     : 22/06/2018
-  Modified    : 02/07/2019
+  Modified    : 19/02/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -43,6 +43,7 @@ type
 
   TMySQLQueryGenerator = class(TDAOQueryGenerator,IDAOQueryGenerator)
   public
+    function Name : string;
     function CreateTable(const aTable : TDAOModel) : string;
     function ExistsTable(aModel : TDAOModel) : string;
     function ExistsColumn(aModel : TDAOModel; const aFieldName : string) : string;
@@ -134,6 +135,11 @@ end;
 function TMySQLQueryGenerator.ExistsTable(aModel: TDAOModel): string;
 begin
   Result := Format('SHOW TABLES LIKE ''%s''',[aModel.TableName]);
+end;
+
+function TMySQLQueryGenerator.Name: string;
+begin
+  Result := 'MYSQL';
 end;
 
 function TMySQLQueryGenerator.ExistsColumn(aModel : TDAOModel; const aFieldName : string) : string;
