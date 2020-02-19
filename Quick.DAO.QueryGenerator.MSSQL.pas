@@ -1,13 +1,13 @@
 { ***************************************************************************
 
-  Copyright (c) 2016-2019 Kike Pérez
+  Copyright (c) 2016-2020 Kike Pérez
 
   Unit        : Quick.DAO.QueryGenerator.MSSQL
   Description : DAO MSSQL Query Generator
   Author      : Kike Pérez
-  Version     : 1.0
+  Version     : 1.1
   Created     : 22/06/2018
-  Modified    : 02/07/2019
+  Modified    : 19/02/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -43,6 +43,7 @@ type
 
   TMSSQLQueryGenerator = class(TDAOQueryGenerator,IDAOQueryGenerator)
   public
+    function Name : string;
     function CreateTable(const aTable : TDAOModel) : string;
     function ExistsTable(aModel: TDAOModel) : string;
     function ExistsColumn(aModel : TDAOModel; const aFieldName : string) : string;
@@ -58,6 +59,7 @@ type
     function Delete(const aTableName : string; const aWhere : string) : string;
     function DateTimeToDBField(aDateTime : TDateTime) : string;
     function DBFieldToDateTime(const aValue : string) : TDateTime;
+    function QuotedStr(const aValue: string): string; override;
   end;
 
 implementation
@@ -173,6 +175,16 @@ begin
   end;
 end;
 
+function TMSSQLQueryGenerator.Name: string;
+begin
+  Result := 'MSSQL';
+end;
+
+function TMSSQLQueryGenerator.QuotedStr(const aValue: string): string;
+begin
+  Result := '''' + aValue + '''';
+end;
+
 function TMSSQLQueryGenerator.ExistsColumn(aModel: TDAOModel; const aFieldName: string) : string;
 var
   querytext : TStringList;
@@ -246,18 +258,8 @@ begin
 end;
 
 function TMSSQLQueryGenerator.AddOrUpdate(const aTableName: string; const aFieldNames, aFieldValues : string) : string;
-var
-  querytext : TStringList;
 begin
-  querytext := TStringList.Create;
-  try
-    querytext.Add(Format('INSERT OR REPLACE INTO [%s]',[aTableName]));
-    querytext.Add(Format('(%s)',[aFieldNames]));
-    querytext.Add(Format('VALUES(%s)',[aFieldValues]));
-    Result := querytext.Text;
-  finally
-    querytext.Free;
-  end;
+  //no add or update
 end;
 
 function TMSSQLQueryGenerator.Update(const aTableName, aFieldPairs, aWhere : string) : string;

@@ -288,6 +288,8 @@ end;
 
 function TDAOQueryFireDAC<T>.OpenQuery(const aQuery : string) : Integer;
 begin
+  fFirstIteration := True;
+  fQuery.Close;
   fQuery.SQL.Text := aQuery;
   fQuery.Open;
   fHasResults := fQuery.RecordCount > 0;

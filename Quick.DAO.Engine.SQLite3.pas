@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.0
   Created     : 06/07/2019
-  Modified    : 12/01/2020
+  Modified    : 08/02/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -212,6 +212,7 @@ end;
 
 function TDAOQuerySQLite3<T>.OpenQuery(const aQuery: string): Integer;
 begin
+  fFirstIteration := True;
   fQuery := TDAODataBaseSQLite3(fDAODataBase).fDataBase.Prepare(aQuery);
   fHasResults := sqlite3_data_count(fQuery) > 0;
   Result := sqlite3_data_count(fQuery);

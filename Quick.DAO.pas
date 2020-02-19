@@ -1,13 +1,13 @@
 { ***************************************************************************
 
-  Copyright (c) 2016-2019 Kike Pérez
+  Copyright (c) 2016-2020 Kike Pérez
 
   Unit        : Quick.DAO
   Description : DAO Easy access
   Author      : Kike Pérez
   Version     : 1.1
   Created     : 22/06/2018
-  Modified    : 07/11/2019
+  Modified    : 19/02/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -149,6 +149,11 @@ type
 
   TDAOFields = array of TDAOField;
 
+  TDBField = record
+    FieldName : string;
+    Value : variant;
+  end;
+
   TDAOModel = class
   private
     fTable : TDAORecordClass;
@@ -206,6 +211,7 @@ type
 
   IDAOQueryGenerator = interface
   ['{9FD0E61E-0568-49F4-A9D4-2D540BE72384}']
+    function Name : string;
     function CreateTable(const aTable : TDAOModel) : string;
     function ExistsTable(aModel : TDAOModel) : string;
     function ExistsColumn(aModel : TDAOModel; const aFieldName : string) : string;
@@ -221,6 +227,7 @@ type
     function Delete(const aTableName : string; const aWhere : string) : string;
     function DateTimeToDBField(aDateTime : TDateTime) : string;
     function DBFieldToDateTime(const aValue : string) : TDateTime;
+    function QuotedStr(const aValue : string) : string;
   end;
 
   IDAOLinqQuery<T> = interface
@@ -262,12 +269,9 @@ type
     function HasResults : Boolean;
   end;
 
-  TDBField = record
-    FieldName : string;
-    Value : variant;
+  TDAOQueryGenerator = class(TInterfacedObject)
+    function QuotedStr(const aValue: string): string; virtual;
   end;
-
-  TDAOQueryGenerator = class(TInterfacedObject);
 
   TDAORecord = class
   private
@@ -714,6 +718,13 @@ end;
 function TDAOResult<T>.TDAOEnumerator.DoMoveNext: Boolean;
 begin
   Result := fDAOQuery.MoveNext;
+end;
+
+{ TDAOQueryGenerator }
+
+function TDAOQueryGenerator.QuotedStr(const aValue: string): string;
+begin
+  Result := '''' + aValue + '''';
 end;
 
 end.

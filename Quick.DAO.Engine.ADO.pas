@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.1
   Created     : 22/06/2018
-  Modified    : 12/01/2020
+  Modified    : 08/02/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -36,7 +36,7 @@ interface
 uses
   Classes,
   SysUtils,
-  {$IF Not Defined(FPC) AND Not Defined(NETGEN)}
+  {$IFDEF MSWINDOWS}
   Data.Win.ADODB,
   Winapi.ActiveX,
   {$ELSE}
@@ -300,6 +300,8 @@ end;
 
 function TDAOQueryADO<T>.OpenQuery(const aQuery: string): Integer;
 begin
+  fFirstIteration := True;
+  fQuery.Close;
   fQuery.SQL.Text := aQuery;
   fQuery.Open;
   fHasResults := fQuery.RecordCount > 0;

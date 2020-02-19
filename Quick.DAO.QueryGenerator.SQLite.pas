@@ -1,13 +1,13 @@
 { ***************************************************************************
 
-  Copyright (c) 2016-2019 Kike Pérez
+  Copyright (c) 2016-2020 Kike Pérez
 
   Unit        : Quick.DAO.QueryGenerator.SQLite
   Description : DAO SQLite Query Generator
   Author      : Kike Pérez
   Version     : 1.0
   Created     : 22/06/2018
-  Modified    : 11/07/2019
+  Modified    : 19/02/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -45,6 +45,7 @@ type
   private
     fFormatSettings : TFormatSettings;
   public
+    function Name : string;
     constructor Create;
     function CreateTable(const aTable : TDAOModel) : string;
     function ExistsTable(aModel : TDAOModel) : string;
@@ -61,6 +62,7 @@ type
     function Delete(const aTableName : string; const aWhere : string) : string;
     function DateTimeToDBField(aDateTime : TDateTime) : string;
     function DBFieldToDateTime(const aValue : string) : TDateTime;
+    function QuotedStr(const aValue: string): string;
   end;
 
 implementation
@@ -151,6 +153,16 @@ end;
 function TSQLiteQueryGenerator.ExistsTable(aModel: TDAOModel): string;
 begin
   Result := Format('SELECT name FROM sqlite_master WHERE type = ''table'' AND name = ''%s''',[aModel.TableName]);
+end;
+
+function TSQLiteQueryGenerator.Name: string;
+begin
+  Result := 'SQLITE';
+end;
+
+function TSQLiteQueryGenerator.QuotedStr(const aValue: string): string;
+begin
+  Result := '"' + aValue + '"';
 end;
 
 function TSQLiteQueryGenerator.SetPrimaryKey(aModel: TDAOModel) : string;
