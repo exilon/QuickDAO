@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.1
   Created     : 31/08/2018
-  Modified    : 19/02/2020
+  Modified    : 31/03/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -53,6 +53,7 @@ uses
   Quick.Rtti.fpc.Compatibility,
   {$ENDIF}
   Quick.Commons,
+  Quick.RTTI.Utils,
   Quick.Json.Serializer,
   Quick.DAO,
   Quick.DAO.Database;
@@ -79,7 +80,7 @@ type
     procedure FillRecordFromDB(aDAORecord : T);
     function GetDBFieldValue(const aFieldName : string; aValue : TValue): TValue;
     function GetFieldsPairs(aDAORecord : TDAORecord): string; overload;
-    function GetFieldsPairs(const aFieldNames : string; aFieldValues : array of const): string; overload;
+    function GetFieldsPairs(const aFieldNames : string; aFieldValues : array of const; aIsTimeStamped : Boolean): string; overload;
     function GetRecordValue(const aFieldName : string; aValue : TValue) : string;
     function GetModel : TDAOModel;
     function OpenQuery(const aQuery : string) : Integer; virtual; abstract;
@@ -96,7 +97,8 @@ type
     function Delete(aDAORecord : TDAORecord) : Boolean; overload; virtual;
     function Delete(const aWhere : string) : Boolean; overload; virtual;
     //LINQ queries
-    function Where(const aFormatSQLWhere: string; const aValuesSQLWhere: array of const) : IDAOLinqQuery<T>;
+    function Where(const aFormatSQLWhere: string; const aValuesSQLWhere: array of const) : IDAOLinqQuery<T>; overload;
+    function Where(const aWhereClause : string) : IDAOLinqQuery<T>; overload;
     function SelectFirst : T;
     function SelectLast : T;
     function Select : IDAOResult<T>; overload;
@@ -143,7 +145,7 @@ begin
   try
     rType := ctx.GetType(aDAORecord.ClassInfo);
     try
-      for rProp in rType.GetProperties do
+      for rProp in TRTTI.GetProperties(rType,roFirstBase) do
       begin
         propertyname := rProp.Name;
         if IsPublishedProp(aDAORecord,propertyname) then
@@ -156,7 +158,7 @@ begin
           {$ENDIF}
           skip := False;
           propvalue := rProp.GetValue(aDAORecord);
-          if CompareText(rProp.Name,fModel.PrimaryKey) = 0 then
+          if CompareText(rProp.Name,fModel.PrimaryKey.Name) = 0 then
           begin
             if not aExcludeAutoIDFields then
             begin
@@ -217,9 +219,12 @@ begin
     {$ENDIF}
     tkFloat :
       begin
-        if aValue.TypeInfo = TypeInfo(TDateTime) then
+        if ((aValue.TypeInfo = TypeInfo(TDateTime)) or
+           (aValue.TypeInfo = TypeInfo(TCreationDate)) or
+           (aValue.TypeInfo = TypeInfo(TModifiedDate))) then
         begin
-          Result := QuotedStr(fQueryGenerator.DateTimeToDBField(aValue.AsExtended));
+          if aValue.AsExtended = 0.0 then Result := 'null'
+            else Result := QuotedStr(fQueryGenerator.DateTimeToDBField(aValue.AsExtended));
         end
         else if aValue.TypeInfo = TypeInfo(TDate) then
         begin
@@ -277,7 +282,7 @@ begin
   try
     rType := ctx.GetType(fModel.Table);
     try
-      for rProp in rType.GetProperties do
+      for rProp in TRTTI.GetProperties(rType,roFirstBase) do
       begin
         propertyname := rProp.Name;
         if IsPublishedProp(aDAORecord,propertyname) then
@@ -290,7 +295,9 @@ begin
           {$ENDIF}
           propvalue := rProp.GetValue(aDAORecord);
           value := GetRecordValue(propertyname,propvalue);
-          if not ((CompareText(propertyname,fModel.PrimaryKey) = 0) and (rProp.PropertyType.Name = 'TAutoID')) then Result := Result + Format('[%s]=%s,',[propertyname,value]);
+          if not ((CompareText(propertyname,fModel.PrimaryKey.Name) = 0) and (rProp.PropertyType.Name = 'TAutoID')) then Result := Result + Format('[%s]=%s,',[propertyname,value])
+            else if propvalue.TypeInfo = TypeInfo(TModifiedDate) then value := fQueryGenerator.DateTimeToDBField(Now());
+
           //rProp.SetValue(Self,GetDBFieldValue(propertyname,rProp.GetValue(Self)));
         end;
       end;
@@ -306,14 +313,15 @@ begin
   end;
 end;
 
-function TDAOQuery<T>.GetFieldsPairs(const aFieldNames : string; aFieldValues : array of const): string;
+function TDAOQuery<T>.GetFieldsPairs(const aFieldNames : string; aFieldValues : array of const; aIsTimeStamped : Boolean): string;
 var
   fieldname : string;
   value : string;
   i : Integer;
 begin
+  if aIsTimeStamped then Result := 'ModifiedDate = ' + fQueryGenerator.DateTimeToDBField(Now()) + ',';
   i := 0;
-  for fieldname in aFieldNames do
+  for fieldname in aFieldNames.Split([',']) do
   begin
     case aFieldValues[i].VType of
       vtInteger : value := IntToStr(aFieldValues[i].VInteger);
@@ -353,7 +361,7 @@ begin
     IsFilterSelect := not IsEmptyArray(fSelectedFields);
     rType := ctx.GetType(fModel.Table);
     try
-      for rProp in rType.GetProperties do
+      for rProp in TRTTI.GetProperties(rType,roFirstBase) do
       begin
         propertyname := rProp.Name;
         if IsPublishedProp(aDAORecord,propertyname) then
@@ -368,11 +376,11 @@ begin
           if (IsFilterSelect) and (not StrInArray(propertyname,fSelectedFields)) then skip := True;
           if not skip then rvalue := GetDBFieldValue(propertyname,rProp.GetValue(TDAORecord(aDAORecord)))
             else rvalue := nil;
-          if CompareText(propertyname,fModel.PrimaryKey) = 0 then
+          if CompareText(propertyname,fModel.PrimaryKey.Name) = 0 then
           begin
             if not rvalue.IsEmpty then
             begin
-              dbfield.FieldName := fModel.PrimaryKey;
+              dbfield.FieldName := fModel.PrimaryKey.Name;
               dbfield.Value := rValue.AsVariant;
               TDAORecord(aDAORecord).PrimaryKey := dbfield;
             end;
@@ -468,7 +476,9 @@ begin
       {$ENDIF}
       tkFloat :
         begin
-          if aValue.TypeInfo = TypeInfo(TDateTime) then
+          if ((aValue.TypeInfo = TypeInfo(TDateTime)) or
+             (aValue.TypeInfo = TypeInfo(TCreationDate)) or
+             (aValue.TypeInfo = TypeInfo(TModifiedDate))) then
           begin
             if not IsNull then
             begin
@@ -557,6 +567,7 @@ var
   sqlvalues : TStringList;
 begin
   try
+    if aDAORecord is TDAORecordTS then TDAORecordTS(aDAORecord).CreationDate := Now();
     sqlfields := fModel.GetFieldNames(aDAORecord,False);
     try
       sqlvalues := GetFieldValues(aDAORecord,False);
@@ -580,8 +591,8 @@ var
 begin
   Result := False;
   try
-    if fQueryGenerator.Name = 'MSSQL' then
-    begin
+//    if fQueryGenerator.Name <> 'MSSQL' then
+//    begin
       if (aDAORecord.PrimaryKey.FieldName = '') or (VarIsEmpty(aDAORecord.PrimaryKey.Value))
         or (Where(Format('%s = ?',[aDAORecord.PrimaryKey.FieldName]),[aDAORecord.PrimaryKey.Value]).Count = 0) then
       begin
@@ -591,21 +602,21 @@ begin
       begin
         Update(aDAORecord);
       end;
-    end
-    else
-    begin
-      sqlfields := fModel.GetFieldNames(aDAORecord,False);
-      try
-        sqlvalues := GetFieldValues(aDAORecord,False);
-        try
-          Result := ExecuteQuery(fQueryGenerator.AddOrUpdate(fModel.TableName,sqlfields.CommaText,CommaText(sqlvalues)));
-        finally
-          sqlvalues.Free;
-        end;
-      finally
-        sqlfields.Free;
-      end;
-    end;
+//    end
+//    else
+//    begin
+//      sqlfields := fModel.GetFieldNames(aDAORecord,False);
+//      try
+//        sqlvalues := GetFieldValues(aDAORecord,False);
+//        try
+//          Result := ExecuteQuery(fQueryGenerator.AddOrUpdate(fModel.TableName,sqlfields.CommaText,CommaText(sqlvalues)));
+//        finally
+//          sqlvalues.Free;
+//        end;
+//      finally
+//        sqlfields.Free;
+//      end;
+//    end;
   except
     on E : Exception do raise EDAOCreationError.CreateFmt('AddOrUpdate error: %s',[e.message]);
   end;
@@ -783,6 +794,8 @@ end;
 function TDAOQuery<T>.Update(aDAORecord: TDAORecord): Boolean;
 begin
   try
+    if aDAORecord is TDAORecordTS then TDAORecordTS(aDAORecord).ModifiedDate := Now();
+
     Result := ExecuteQuery(fQueryGenerator.Update(fModel.TableName,GetFieldsPairs(aDAORecord),
                            Format('%s=%s',[aDAORecord.PrimaryKey.FieldName,aDAORecord.PrimaryKey.Value])));
   except
@@ -791,12 +804,21 @@ begin
 end;
 
 function TDAOQuery<T>.Update(const aFieldNames: string; const aFieldValues: array of const): Boolean;
+var
+  stamped : Boolean;
 begin
   try
-    Result := ExecuteQuery(fQueryGenerator.Update(fModel.TableName,GetFieldsPairs(aFieldNames,aFieldValues),fWhereClause));
+    if TypeInfo(T) = TypeInfo(TDAORecordTS) then stamped := True;
+    Result := ExecuteQuery(fQueryGenerator.Update(fModel.TableName,GetFieldsPairs(aFieldNames,aFieldValues,stamped),fWhereClause));
   except
     on E : Exception do raise EDAOUpdateError.CreateFmt('Update error: %s',[e.message]);
   end;
+end;
+
+function TDAOQuery<T>.Where(const aWhereClause: string): IDAOLinqQuery<T>;
+begin
+  Result := Self;
+  fWhereClause := aWhereClause;
 end;
 
 function TDAOQuery<T>.Where(const aFormatSQLWhere: string; const aValuesSQLWhere: array of const): IDAOLinqQuery<T>;

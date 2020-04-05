@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.0
   Created     : 22/06/2018
-  Modified    : 19/02/2020
+  Modified    : 31/03/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -65,9 +65,9 @@ implementation
 
 const
   {$IFNDEF FPC}
-  DBDATATYPES : array of string = ['varchar(%d)','text','char(%d)','int','integer','bigint','decimal(%d,%d)','bit','date','time','datetime'];
+  DBDATATYPES : array of string = ['varchar(%d)','text','char(%d)','int','integer','bigint','decimal(%d,%d)','bit','date','time','datetime','datetime','datetime'];
   {$ELSE}
-  DBDATATYPES : array[0..10] of string = ('varchar(%d)','text','char(%d)','int','integer','bigint','decimal(%d,%d)','bit','date','time','datetime');
+  DBDATATYPES : array[0..10] of string = ('varchar(%d)','text','char(%d)','int','integer','bigint','decimal(%d,%d)','bit','date','time','datetime','datetime','datetime');
   {$ENDIF}
 
 { TSQLiteQueryGenerator }
@@ -111,7 +111,7 @@ begin
   try
     querytext.Add(Format('CREATE TABLE IF NOT EXISTS [%s] (',[aTable.TableName]));
 
-    for field in aTable.GetFields do
+    for field in aTable.Fields do
     begin
       if field.DataType = dtFloat then
       begin
@@ -124,7 +124,12 @@ begin
       end;
       querytext.Add(Format('[%s] %s,',[field.Name,datatype]));
     end;
-    querytext.Add(Format('PRIMARY KEY(%s)',[aTable.PrimaryKey]));
+    if not aTable.PrimaryKey.Name.IsEmpty then
+    begin
+      if aTable.PrimaryKey.DataType = dtAutoID then querytext.Add(Format('PRIMARY KEY(%s) AUTOINCREMENT',[aTable.PrimaryKey.Name]))
+        else querytext.Add(Format('PRIMARY KEY(%s)',[aTable.PrimaryKey.Name]));
+    end
+    else querytext[querytext.Count-1] := Copy(querytext[querytext.Count-1],1,querytext[querytext.Count-1].Length-1);
     querytext.Add(')');
     Result := querytext.Text;
   finally

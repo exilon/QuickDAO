@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.1
   Created     : 22/06/2018
-  Modified    : 19/02/2020
+  Modified    : 31/03/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -66,9 +66,9 @@ implementation
 
 const
   {$IFNDEF FPC}
-  DBDATATYPES : array of string = ['varchar(%d)','varchar(max)','char(%d)','int','integer','bigint','decimal(%d,%d)','bit','date','time','datetime'];
+  DBDATATYPES : array of string = ['varchar(%d)','varchar(max)','char(%d)','int','integer','bigint','decimal(%d,%d)','bit','date','time','datetime','datetime','datetime'];
   {$ELSE}
-  DBDATATYPES : array[0..10] of string = ('varchar(%d)','varchar(max)','char(%d)','int','integer','bigint','decimal(%d,%d)','bit','date','time','datetime');
+  DBDATATYPES : array[0..10] of string = ('varchar(%d)','varchar(max)','char(%d)','int','integer','bigint','decimal(%d,%d)','bit','date','time','datetime','datetime','datetime');
   {$ENDIF}
 
 { TMSSQLQueryGenerator }
@@ -139,7 +139,7 @@ begin
     querytext.Add(Format('IF NOT EXISTS (SELECT name FROM sys.tables WHERE name = ''%s'')',[aTable.TableName]));
     querytext.Add(Format('CREATE TABLE [%s] (',[aTable.TableName]));
 
-    for field in aTable.GetFields do
+    for field in aTable.Fields do
     begin
       if field.DataType = dtFloat then
       begin
@@ -153,7 +153,11 @@ begin
       if field.DataType = dtAutoID then querytext.Add(Format('[%s] %s IDENTITY(1,1),',[field.Name,datatype]))
         else querytext.Add(Format('[%s] %s,',[field.Name,datatype]))
     end;
-    querytext.Add(Format('PRIMARY KEY(%s)',[aTable.PrimaryKey]));
+    if not aTable.PrimaryKey.Name.IsEmpty then
+    begin
+      querytext.Add(Format('PRIMARY KEY(%s)',[aTable.PrimaryKey.Name]));
+    end
+    else querytext[querytext.Count-1] := Copy(querytext[querytext.Count-1],1,querytext[querytext.Count-1].Length-1);
     querytext.Add(')');
     Result := querytext.Text;
   finally
@@ -208,7 +212,7 @@ begin
     querytext.Add('IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS');
     querytext.Add(Format('WHERE CONSTRAINT_TYPE = ''PRIMARY KEY'' AND TABLE_NAME = ''%s'' AND TABLE_SCHEMA =''dbo'')',[aModel.TableName]));
     querytext.Add('BEGIN');
-    querytext.Add(Format('ALTER TABLE [%s] ADD CONSTRAINT PK_%s PRIMARY KEY (%s)',[aModel.TableName,aModel.PrimaryKey,aModel.PrimaryKey]));
+    querytext.Add(Format('ALTER TABLE [%s] ADD CONSTRAINT PK_%s PRIMARY KEY (%s)',[aModel.TableName,aModel.PrimaryKey.Name,aModel.PrimaryKey.Name]));
     querytext.Add('END');
     Result := querytext.Text;
   finally
