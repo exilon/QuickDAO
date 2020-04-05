@@ -129,6 +129,7 @@ type
     function GetTableNames : TArray<string>; virtual; abstract;
     function GetFieldNames(const aTableName : string) : TArray<string>; virtual; abstract;
     function Connect : Boolean; virtual;
+    procedure Disconnect; virtual; abstract;
     function IsConnected : Boolean; virtual; abstract;
     function AddOrUpdate(aDAORecord : TDAORecord) : Boolean; virtual;
     function Add(aDAORecord : TDAORecord) : Boolean; virtual;
