@@ -1,13 +1,13 @@
 { ***************************************************************************
 
-  Copyright (c) 2016-2019 Kike Pérez
+  Copyright (c) 2016-2020 Kike Pérez
 
   Unit        : Quick.DAO.Database
   Description : DAO Database
   Author      : Kike Pérez
   Version     : 1.2
   Created     : 22/06/2018
-  Modified    : 08/11/2019
+  Modified    : 03/04/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -129,6 +129,7 @@ type
     function GetTableNames : TArray<string>; virtual; abstract;
     function GetFieldNames(const aTableName : string) : TArray<string>; virtual; abstract;
     function Connect : Boolean; virtual;
+    procedure Disconnect; virtual; abstract;
     function IsConnected : Boolean; virtual; abstract;
     function AddOrUpdate(aDAORecord : TDAORecord) : Boolean; virtual;
     function Add(aDAORecord : TDAORecord) : Boolean; virtual;
@@ -160,10 +161,7 @@ var
 begin
   for daoindex in Indexes.List do
   begin
-    for daomodel in Models.List do
-    begin
-      if daomodel.Table = daoindex.Table then CreateIndex(daomodel,daoindex);
-    end;
+    if (Models.List.TryGetValue(daoindex.Table,daomodel)) and (daomodel.HasPrimaryKey) then CreateIndex(daomodel,daoindex);
   end;
 end;
 
@@ -171,7 +169,7 @@ procedure TDAODataBase.CreateTables;
 var
   daomodel : TDAOModel;
 begin
-  for daomodel in Models.List do
+  for daomodel in Models.List.Values do
   begin
     if not ExistsTable(daomodel) then CreateTable(daomodel);
     SetPrimaryKey(daomodel);
@@ -182,7 +180,6 @@ function TDAODataBase.CreateTable(const aModel : TDAOModel): Boolean;
 var
   field : TDAOField;
 begin
-  Result := False;
   try
     ExecuteSQLQuery(QueryGenerator.CreateTable(aModel));
     Result := True;
@@ -190,7 +187,7 @@ begin
     on E : Exception do raise EDAOCreationError.CreateFmt('Error creating table "%s" : %s!',[aModel.TableName,e.Message])
   end;
   //add new fields
-  for field in aModel.GetFields do
+  for field in aModel.Fields do
   begin
     if not ExistsColumn(aModel,field.Name) then AddColumnToTable(aModel,field);
   end;
@@ -215,7 +212,7 @@ begin
   except
     on E : Exception do raise EDAOCreationError.Create('Error modifying primary key field');
   end;
-  if fDBConnection.Provider = daoSQLite then Indexes.Add(aModel.Table,[aModel.PrimaryKey],TDAOIndexOrder.orAscending);
+  if (fDBConnection.Provider = daoSQLite) and (aModel.HasPrimaryKey) then Indexes.Add(aModel.Table,[aModel.PrimaryKey.Name],TDAOIndexOrder.orAscending);
 end;
 
 procedure TDAODataBase.CreateIndex(aModel : TDAOModel; aIndex : TDAOIndex);

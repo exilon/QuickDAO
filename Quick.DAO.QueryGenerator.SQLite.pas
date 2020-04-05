@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.0
   Created     : 22/06/2018
-  Modified    : 19/02/2020
+  Modified    : 31/03/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -62,16 +62,16 @@ type
     function Delete(const aTableName : string; const aWhere : string) : string;
     function DateTimeToDBField(aDateTime : TDateTime) : string;
     function DBFieldToDateTime(const aValue : string) : TDateTime;
-    function QuotedStr(const aValue: string): string;
+    function QuotedStr(const aValue: string): string; override;
   end;
 
 implementation
 
 const
   {$IFNDEF FPC}
-  DBDATATYPES : array of string = ['varchar(%d)','text','char(%d)','integer','integer','bigint','decimal(%d,%d)','bit','date','time','datetime'];
+  DBDATATYPES : array of string = ['varchar(%d)','text','char(%d)','integer','integer','bigint','decimal(%d,%d)','bit','date','time','datetime','datetime','datetime'];
   {$ELSE}
-  DBDATATYPES : array[0..10] of string = ('varchar(%d)','text','char(%d)','integer','integer','bigint','decimal(%d,%d)','bit','date','time','datetime');
+  DBDATATYPES : array[0..10] of string = ('varchar(%d)','text','char(%d)','integer','integer','bigint','decimal(%d,%d)','bit','date','time','datetime','datetime','datetime');
   {$ENDIF}
 
 { TSQLiteQueryGenerator }
@@ -124,7 +124,7 @@ begin
   try
     querytext.Add(Format('CREATE TABLE IF NOT EXISTS [%s] (',[aTable.TableName]));
 
-    for field in aTable.GetFields do
+    for field in aTable.Fields do
     begin
       if field.DataType = dtFloat then
       begin
@@ -135,9 +135,18 @@ begin
         if field.DataSize > 0 then datatype := Format(DBDATATYPES[Integer(field.DataType)],[field.DataSize])
           else datatype := DBDATATYPES[Integer(field.DataType)];
       end;
-      querytext.Add(Format('[%s] %s,',[field.Name,datatype]));
+      if field.IsPrimaryKey then
+      begin
+        if field.DataType = dtAutoID then querytext.Add(Format('[%s] %s PRIMARY KEY AUTOINCREMENT,',[field.Name,datatype]))
+          else querytext.Add(Format('[%s] %s PRIMARY KEY,',[field.Name,datatype]));
+      end
+      else
+      begin
+        if field.DataType = dtCreationDate then querytext.Add(Format('[%s] %s DEFAULT CURRENT_TIMESTAMP,',[field.Name,datatype]))
+          else querytext.Add(Format('[%s] %s,',[field.Name,datatype]));
+      end;
     end;
-    querytext.Add(Format('PRIMARY KEY(%s)',[aTable.PrimaryKey]));
+    querytext[querytext.Count-1] := Copy(querytext[querytext.Count-1],1,querytext[querytext.Count-1].Length-1);
     querytext.Add(')');
     Result := querytext.Text;
   finally

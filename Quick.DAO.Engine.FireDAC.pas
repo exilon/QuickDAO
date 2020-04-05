@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.1
   Created     : 31/08/2018
-  Modified    : 12/01/2020
+  Modified    : 24/03/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -87,6 +87,7 @@ type
     destructor Destroy; override;
     function CreateQuery(aModel : TDAOModel) : IDAOQuery<TDAORecord>; override;
     function Connect : Boolean; override;
+    procedure Disconnect; override;
     function GetTableNames : TArray<string>; override;
     function GetFieldNames(const aTableName : string) : TArray<string>; override;
     function IsConnected : Boolean; override;
@@ -164,6 +165,12 @@ begin
   if fFireDACConnection.Connected then fFireDACConnection.Connected := False;
   fFireDACConnection.Free;
   inherited;
+end;
+
+procedure TDAODataBaseFireDAC.Disconnect;
+begin
+  inherited;
+  fFireDACConnection.Connected := False;
 end;
 
 procedure TDAODataBaseFireDAC.ExecuteSQLQuery(const aQueryText: string);
