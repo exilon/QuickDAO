@@ -35,7 +35,7 @@ type
     City : string;
   end;
 
-  TUser = class(TDAORecord)
+  TUser = class(TDAORecordTS)
   private
     fIdUser : TAutoID;
     fName : string;
