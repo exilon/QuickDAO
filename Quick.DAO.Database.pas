@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.2
   Created     : 22/06/2018
-  Modified    : 03/04/2020
+  Modified    : 14/04/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -98,15 +98,18 @@ type
     function IsCustomConnectionString : Boolean;
     procedure FromConnectionString(aDBProviderID : Integer; const aConnectionString: string);
     function GetCustomConnectionString : string;
+    function Clone : TDBConnectionSettings;
   end;
 
   TDAODataBase = class
   private
     fDBConnection : TDBConnectionSettings;
+    fOwnsConnection : Boolean;
     fQueryGenerator : IDAOQueryGenerator;
     fModels : TDAOModels;
     fIndexes : TDAOIndexes;
   protected
+    property OwnsConnection : Boolean read fOwnsConnection write fOwnsConnection;
     function CreateConnectionString : string; virtual; abstract;
     procedure ExecuteSQLQuery(const aQueryText : string); virtual; abstract;
     procedure OpenSQLQuery(const aQueryText: string); virtual; abstract;
@@ -135,23 +138,27 @@ type
     function Add(aDAORecord : TDAORecord) : Boolean; virtual;
     function Update(aDAORecord : TDAORecord) : Boolean; virtual;
     function Delete(aDAORecord : TDAORecord) : Boolean; overload; virtual;
+    function Clone : TDAODatabase; virtual; abstract;
   end;
 
 implementation
 
 { TDAODataBase }
 
-function TDAODataBase.Connect: Boolean;
-begin
-  Result := False;
-  fQueryGenerator := TDAOQueryGeneratorFactory.Create(fDBConnection.Provider);
-end;
-
 constructor TDAODataBase.Create;
 begin
   fDBConnection := TDBConnectionSettings.Create;
+  fOwnsConnection := True;
   fModels := TDAOModels.Create;
   fIndexes := TDAOIndexes.Create;
+end;
+
+destructor TDAODataBase.Destroy;
+begin
+  fDBConnection.Free;
+  fModels.Free;
+  fIndexes.Free;
+  inherited;
 end;
 
 procedure TDAODataBase.CreateIndexes;
@@ -168,17 +175,24 @@ end;
 procedure TDAODataBase.CreateTables;
 var
   daomodel : TDAOModel;
+  field : TDAOField;
 begin
   for daomodel in Models.List.Values do
   begin
-    if not ExistsTable(daomodel) then CreateTable(daomodel);
+    if not ExistsTable(daomodel) then CreateTable(daomodel)
+    else
+    begin
+      //add new fields
+      for field in daomodel.Fields do
+      begin
+        if not ExistsColumn(daomodel,field.Name) then AddColumnToTable(daomodel,field);
+      end;
+    end;
     SetPrimaryKey(daomodel);
   end;
 end;
 
 function TDAODataBase.CreateTable(const aModel : TDAOModel): Boolean;
-var
-  field : TDAOField;
 begin
   try
     ExecuteSQLQuery(QueryGenerator.CreateTable(aModel));
@@ -186,11 +200,12 @@ begin
   except
     on E : Exception do raise EDAOCreationError.CreateFmt('Error creating table "%s" : %s!',[aModel.TableName,e.Message])
   end;
-  //add new fields
-  for field in aModel.Fields do
-  begin
-    if not ExistsColumn(aModel,field.Name) then AddColumnToTable(aModel,field);
-  end;
+end;
+
+function TDAODataBase.Connect: Boolean;
+begin
+  Result := False;
+  fQueryGenerator := TDAOQueryGeneratorFactory.Create(fDBConnection.Provider);
 end;
 
 procedure TDAODataBase.AddColumnToTable(aModel : TDAOModel; aField : TDAOField);
@@ -248,20 +263,24 @@ begin
   Result := CreateQuery(fModels.Get(aDAORecord)).Update(aDAORecord);
 end;
 
-destructor TDAODataBase.Destroy;
-begin
-  fDBConnection.Free;
-  fModels.Free;
-  fIndexes.Free;
-  inherited;
-end;
-
 function TDAODataBase.QueryGenerator: IDAOQueryGenerator;
 begin
   Result := fQueryGenerator;
 end;
 
 { TDBConnectionSettings }
+
+function TDBConnectionSettings.Clone: TDBConnectionSettings;
+begin
+  Result := TDBConnectionSettings.Create;
+  Result.Provider := fDBProvider;
+  Result.Server := fServer;
+  Result.Database := fDatabase;
+  Result.UserName := fUserName;
+  Result.Password := fPassword;
+  Result.fIsCustomConnectionString := fIsCustomConnectionString;
+  Result.fCustomConnectionString := fCustomConnectionString;
+end;
 
 constructor TDBConnectionSettings.Create;
 begin
