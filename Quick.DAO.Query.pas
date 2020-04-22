@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.1
   Created     : 31/08/2018
-  Modified    : 31/03/2020
+  Modified    : 07/04/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -197,7 +197,7 @@ begin
       begin
         rttijson := TRTTIJson.Create(TSerializeLevel.slPublishedProperty);
         try
-          jpair := rttijson.Serialize(aFieldName,aValue);
+          jpair := TJSONPair.Create(aFieldName,rttijson.SerializeValue(aValue));
           try
             {$IFNDEF FPC}
             Result := QuotedStr(jpair.JsonValue.ToJson);
@@ -252,7 +252,7 @@ begin
       begin
         rttijson := TRTTIJson.Create(TSerializeLevel.slPublishedProperty);
         try
-          jpair := rttijson.Serialize(aFieldName,aValue);
+          jpair := TJSONPair.Create(aFieldName,rttijson.SerializeRecord(aValue));
           try
             Result := QuotedStr(jpair.{$IFNDEF FPC}ToJSON{$ELSE}JsonString{$ENDIF});
           finally
@@ -566,6 +566,7 @@ var
   sqlfields : TStringList;
   sqlvalues : TStringList;
 begin
+  Result := False;
   try
     if aDAORecord is TDAORecordTS then TDAORecordTS(aDAORecord).CreationDate := Now();
     sqlfields := fModel.GetFieldNames(aDAORecord,False);
@@ -596,11 +597,11 @@ begin
       if (aDAORecord.PrimaryKey.FieldName = '') or (VarIsEmpty(aDAORecord.PrimaryKey.Value))
         or (Where(Format('%s = ?',[aDAORecord.PrimaryKey.FieldName]),[aDAORecord.PrimaryKey.Value]).Count = 0) then
       begin
-        Add(aDAORecord);
+        Result := Add(aDAORecord);
       end
       else
       begin
-        Update(aDAORecord);
+        Result := Update(aDAORecord);
       end;
 //    end
 //    else
