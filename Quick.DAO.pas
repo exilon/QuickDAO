@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.1
   Created     : 22/06/2018
-  Modified    : 31/03/2020
+  Modified    : 07/04/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -161,6 +161,7 @@ type
   TDBField = record
     FieldName : string;
     Value : variant;
+    function IsEmptyOrEmpty : Boolean;
   end;
 
   TDAOModel = class
@@ -743,6 +744,7 @@ var
   daorecord : T;
 begin
   Result := TList<T>.Create;
+  Result.Capacity := Self.Count;
   for daorecord in Self do Result.Add(daorecord);
 end;
 
@@ -751,6 +753,7 @@ var
   daorecord : T;
 begin
   Result := TObjectList<T>.Create(True);
+  Result.Capacity := Self.Count;
   for daorecord in Self do Result.Add(daorecord);
 end;
 
@@ -800,6 +803,14 @@ end;
 function TDAOQueryGenerator.QuotedStr(const aValue: string): string;
 begin
   Result := '''' + aValue + '''';
+end;
+
+{ TDBField }
+
+function TDBField.IsEmptyOrEmpty: Boolean;
+begin
+  Result := VarIsClear(Value) or VarIsEmpty(Value) or VarIsNull(Value) or (VarCompareValue(Value, Unassigned) = vrEqual);
+  if (not Result) and VarIsStr(Value) then Result := Value = '';
 end;
 
 end.
