@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.0
   Created     : 06/07/2019
-  Modified    : 24/03/2020
+  Modified    : 14/04/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -58,12 +58,14 @@ type
     function GetDBFieldIndex(const aFieldName : string) : Integer;
   public
     constructor Create; override;
+    constructor CreateFromConnection(aConnection: TSQLite3Database; aOwnsConnection : Boolean);
     destructor Destroy; override;
     function CreateQuery(aModel : TDAOModel) : IDAOQuery<TDAORecord>; override;
     function Connect : Boolean; override;
     procedure Disconnect; override;
     function IsConnected : Boolean; override;
     function From<T : class, constructor> : IDAOLinqQuery<T>;
+    function Clone : TDAODatabase; override;
   end;
 
   TDAOQuerySQLite3<T : class, constructor> = class(TDAOQuery<T>)
@@ -93,6 +95,32 @@ constructor TDAODataBaseSQLite3.Create;
 begin
   inherited;
   fDataBase := TSQLite3Database.Create;
+end;
+
+constructor TDAODataBaseSQLite3.CreateFromConnection(aConnection: TSQLite3Database; aOwnsConnection: Boolean);
+begin
+  Create;
+  if OwnsConnection then fDatabase.Free;
+  OwnsConnection := aOwnsConnection;
+  fDatabase := aConnection;
+end;
+
+destructor TDAODataBaseSQLite3.Destroy;
+begin
+  if Assigned(fInternalQuery) then fInternalQuery.Free;
+  if Assigned(fDataBase) then
+  begin
+    fDataBase.Close;
+    if OwnsConnection then fDataBase.Free;
+  end;
+  inherited;
+end;
+
+function TDAODataBaseSQLite3.Clone: TDAODatabase;
+begin
+  Result := TDAODataBaseSQLite3.CreateFromConnection(fDataBase,False);
+  Result.Connection.Free;
+  Result.Connection := Connection.Clone;
 end;
 
 function TDAODataBaseSQLite3.Connect: Boolean;
@@ -125,17 +153,6 @@ begin
   begin
     if CompareText(fInternalQuery.ColumnName(i),aFieldName) = 0 then Exit(i);
   end;
-end;
-
-destructor TDAODataBaseSQLite3.Destroy;
-begin
-  if Assigned(fInternalQuery) then fInternalQuery.Free;
-  if Assigned(fDataBase) then
-  begin
-    fDataBase.Close;
-    fDataBase.Free;
-  end;
-  inherited;
 end;
 
 procedure TDAODataBaseSQLite3.Disconnect;
