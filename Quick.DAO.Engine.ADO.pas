@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.1
   Created     : 22/06/2018
-  Modified    : 24/03/2020
+  Modified    : 14/04/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -71,6 +71,7 @@ type
     function ExistsColumn(aModel: TDAOModel; const aFieldName: string): Boolean; override;
   public
     constructor Create; override;
+    constructor CreateFromConnection(aConnection: TADOConnection; aOwnsConnection : Boolean);
     destructor Destroy; override;
     function CreateQuery(aModel : TDAOModel) : IDAOQuery<TDAORecord>; override;
     function Connect : Boolean; override;
@@ -79,6 +80,7 @@ type
     function GetFieldNames(const aTableName : string) : TArray<string>; override;
     function IsConnected : Boolean; override;
     function From<T : class, constructor> : IDAOLinqQuery<T>;
+    function Clone : TDAODatabase; override;
   end;
 
   TDAOQueryADO<T : class, constructor> = class(TDAOQuery<T>)
@@ -109,6 +111,30 @@ begin
   CoInitialize(nil);
   fADOConnection := TADOConnection.Create(nil);
   fInternalQuery := TADOQuery.Create(nil);
+end;
+
+constructor TDAODataBaseADO.CreateFromConnection(aConnection: TADOConnection; aOwnsConnection: Boolean);
+begin
+  Create;
+  if OwnsConnection then fADOConnection.Free;
+  OwnsConnection := aOwnsConnection;
+  fADOConnection := aConnection;
+end;
+
+destructor TDAODataBaseADO.Destroy;
+begin
+  if Assigned(fInternalQuery) then fInternalQuery.Free;
+  if fADOConnection.Connected then fADOConnection.Connected := False;
+  if OwnsConnection then fADOConnection.Free;
+  CoUninitialize;
+  inherited;
+end;
+
+function TDAODataBaseADO.Clone: TDAODatabase;
+begin
+  Result := TDAODataBaseADO.CreateFromConnection(fADOConnection,False);
+  Result.Connection.Free;
+  Result.Connection := Connection.Clone;
 end;
 
 function TDAODataBaseADO.Connect: Boolean;
@@ -183,15 +209,6 @@ begin
   finally
     sl.Free;
   end;
-end;
-
-destructor TDAODataBaseADO.Destroy;
-begin
-  if Assigned(fInternalQuery) then fInternalQuery.Free;
-  if fADOConnection.Connected then fADOConnection.Connected := False;
-  fADOConnection.Free;
-  CoUninitialize;
-  inherited;
 end;
 
 procedure TDAODataBaseADO.Disconnect;

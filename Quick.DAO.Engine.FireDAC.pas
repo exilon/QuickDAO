@@ -7,7 +7,7 @@
   Author      : Kike Pérez
   Version     : 1.1
   Created     : 31/08/2018
-  Modified    : 24/03/2020
+  Modified    : 14/04/2020
 
   This file is part of QuickDAO: https://github.com/exilon/QuickDAO
 
@@ -84,6 +84,7 @@ type
     function ExistsColumn(aModel: TDAOModel; const aFieldName: string): Boolean; override;
   public
     constructor Create; override;
+    constructor CreateFromConnection(aConnection: TFDConnection; aOwnsConnection : Boolean);
     destructor Destroy; override;
     function CreateQuery(aModel : TDAOModel) : IDAOQuery<TDAORecord>; override;
     function Connect : Boolean; override;
@@ -92,6 +93,7 @@ type
     function GetFieldNames(const aTableName : string) : TArray<string>; override;
     function IsConnected : Boolean; override;
     function From<T : class, constructor> : IDAOLinqQuery<T>;
+    function Clone : TDAODatabase; override;
   end;
 
   TDAOQueryFireDAC<T : class, constructor> = class(TDAOQuery<T>)
@@ -128,6 +130,29 @@ begin
   fInternalQuery := TFDQuery.Create(nil);
 end;
 
+constructor TDAODataBaseFireDAC.CreateFromConnection(aConnection: TFDConnection; aOwnsConnection : Boolean);
+begin
+  Create;
+  if OwnsConnection then fFireDACConnection.Free;
+  OwnsConnection := aOwnsConnection;
+  fFireDACConnection := aConnection;
+end;
+
+destructor TDAODataBaseFireDAC.Destroy;
+begin
+  if Assigned(fInternalQuery) then fInternalQuery.Free;
+  if fFireDACConnection.Connected then fFireDACConnection.Connected := False;
+  if OwnsConnection then fFireDACConnection.Free;
+  inherited;
+end;
+
+function TDAODataBaseFireDAC.Clone: TDAODatabase;
+begin
+  Result := TDAODataBaseFireDAC.CreateFromConnection(fFireDACConnection,False);
+  Result.Connection.Free;
+  Result.Connection := Connection.Clone;
+end;
+
 function TDAODataBaseFireDAC.Connect: Boolean;
 begin
   //creates connection string based on parameters of connection property
@@ -157,14 +182,6 @@ end;
 function TDAODataBaseFireDAC.CreateQuery(aModel: TDAOModel): IDAOQuery<TDAORecord>;
 begin
   Result := TDAOQueryFireDAC<TDAORecord>.Create(Self,aModel,QueryGenerator);
-end;
-
-destructor TDAODataBaseFireDAC.Destroy;
-begin
-  if Assigned(fInternalQuery) then fInternalQuery.Free;
-  if fFireDACConnection.Connected then fFireDACConnection.Connected := False;
-  fFireDACConnection.Free;
-  inherited;
 end;
 
 procedure TDAODataBaseFireDAC.Disconnect;
