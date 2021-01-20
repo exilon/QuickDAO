@@ -244,4 +244,4 @@ DAODatabase.From<TUser>.Where('Age > ?',[30]).Update('ModifiedDate,ContractId',[
 DAODatabase.From<TUser>.Where('ContractId = ?',[12]).Delete;
 ```
 
-Do you want learn delphi? [learndelphi.org](https://learndelphi.org)
+>Do you want to learn delphi or improve your skills? [learndelphi.org](https://learndelphi.org)
