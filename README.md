@@ -149,7 +149,7 @@ PluralizingTableNameConvention option allows pluralize your tables.
 //Add model TUser with IdUser as primary key field
 DAODatabase.Models.Add(TUser,'IdUser');
 //Add model TUser with Id as primary key field, mapped to a table named "AppUsers"
-DAODatabase.Models.Add(TUser,'Id','AppUsers');
+DAODatabase.Models.Add(TUser,'Id','AppUsers');ñ
 ```
 
 **Creating Indexes:**
@@ -243,3 +243,5 @@ DAODatabase.From<TUser>.Where('Age > ?',[30]).Update('ModifiedDate,ContractId',[
 ```delphi
 DAODatabase.From<TUser>.Where('ContractId = ?',[12]).Delete;
 ```
+
+Do you want learn delphi? [learndelphi.org](https://learndelphi.org)
