@@ -110,8 +110,17 @@ begin
 end;
 
 function TSQLiteQueryGenerator.CreateIndex(aModel: TDAOModel; aIndex: TDAOIndex) : string;
+var
+  fieldsToIndex : string;
+  fieldIndex : ShortInt;
 begin
-  Result := Format('CREATE INDEX IF NOT EXISTS PK_%s ON %s (%s)',[aModel.TableName + '_' + aIndex.FieldNames[0],aModel.TableName,aIndex.FieldNames[0]]);
+  for fieldIndex := 0 to High(aIndex.FieldNames) do
+  begin
+    if fieldIndex > 0 and fieldsToIndex <> '' then fieldsToIndex := fieldsToIndex + ', ';
+    fieldsToIndex := fieldsToIndex + Index.FieldNames[fieldIndex];
+  end;
+  aModel.TableName,aIndex.FieldNames[0]
+  Result := Format('CREATE INDEX IF NOT EXISTS PK_%s ON %s (%s)',[aModel.TableName + '_' + aIndex.FieldNames[0],aModel.TableName,fieldsToIndex);
 end;
 
 function TSQLiteQueryGenerator.CreateTable(const aTable: TDAOModel) : string;
